@@ -744,13 +744,20 @@ def attendance_page(request):
 
 
 def login_view(request):
+
+    today = str(date.today())  
+
+    # check if already logged in today
+    if request.session.get("login_date") == today:
+        return redirect("create_rule")
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        # simple hardcoded login (as you requested)
         if username == "admin" and password == "admin@123":
             request.session["logged_in"] = True
+            request.session["login_date"] = today   # store today's date
             return redirect("create_rule")
 
         return render(request, "webapp/login.html", {
@@ -762,11 +769,13 @@ def login_view(request):
 
 # ---------------- CREATE RULE (STEP 1: ONLY BOX UI) ----------------
 def create_rule(request):
-    if not request.session.get("logged_in"):
+
+    today = str(date.today())
+
+    if request.session.get("login_date") != today:
         return redirect("login")
 
     return render(request, "webapp/create_rule.html")
-
 
 #---------------------MEETING RULE----------------------------
 def create_meeting_rule(request):
