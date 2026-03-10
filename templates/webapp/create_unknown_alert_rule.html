@@ -55,17 +55,7 @@
         <tr>
             <td>Unknown Face Detection</td>
             <td>
-                {% comment %} {% if rule.active %}
-                <span class="status-active"> Active</span>
-                <a class="action-link" href="{% url 'toggle_unknown_alert_rule' %}">
-                    Deactivate
-                </a>
-                {% else %}
-                <span class="status-inactive"> Inactive</span>
-                <a class="action-link" href="{% url 'toggle_unknown_alert_rule' %}">
-                    Activate
-                </a>
-                {% endif %} {% endcomment %}
+                
                 {% if rule.active %}
                 <span style="color:green;font-weight:600">ACTIVE</span>
                 <span class="sep">|</span>
@@ -183,6 +173,7 @@
                   <th style="width:100px">Image</th>
                   <th style="width:35%">Place</th>
                   <th style="width:25%">Time</th>
+                  <th style="width:20%">Date</th>
                   <th style="width:20%">Person</th>
                   <th style="width:10%; text-align:center">Action</th>
                 </tr>
@@ -200,7 +191,8 @@
                     <img src="/media/{{ r.image_path }}" class="ct">
                   </td>
                   <td>{{ r.place }}</td>
-                  <td>{{ r.created_at }}</td>
+                  <td>{{ r.time }}</td>
+                  <td>{{ r.created_at|date:"F j, Y" }}</td>
                   <td>Unknown</td>
                   <td style="text-align:center">
                     <button class="btn-view" data-modal="modal{{ forloop.counter }}">
@@ -247,8 +239,8 @@
                   <div class="mv">{{ r.place }}</div>
                 </div>
                 <div class="mr">
-                  <div class="mk">Time</div>
-                  <div class="mv">{{ r.created_at }}</div>
+                  <div class="mk">Date & Time</div>
+                  <div class="mv">{{ r.created_at|date:"F j, Y" }} {{ r.time }}</div>
                 </div>
                 <div class="mr">
                   <div class="mk">Person</div>
