@@ -263,10 +263,10 @@ def execute_allowed_place_rules():
                 ALLOWED_PLACE_LAST_ALERT[rule_key] = now
                 break   # one mail per cycle
 
-# -----------------ALLOWED PLACE RULE-------------
+# -----------------RESTRICTED ZONE RULE-------------
 from webapp.mailer import send_restricted_zone_alert
 
-RESTRICTED_ZONE_LAST_ALERT = {}
+#RESTRICTED_ZONE_LAST_ALERT = {}
 
 def execute_restricted_zone_rules():
     now = datetime.now()
@@ -294,47 +294,67 @@ def execute_restricted_zone_rules():
         if not rule.get("active"):
             continue
 
-        restricted_depts = rule.get("restricted_departments", [])   # 🔥 LIST
-        cameras = rule["place"]                               # 🔥 LIST
+        restricted_depts = rule.get("restricted_departments", [])   
+        cameras = rule["place"]                               
         email = rule["head_email"]
 
-        recent_start = now - timedelta(minutes=2)
+        recent_start = now - timedelta(minutes=1)
 
+        # records = (
+        #     RecognizedFace.objects
+        #     .filter(
+        #         camera_name__in=cameras,
+        #         capture_date_time__gte=recent_start
+        #     )
+        #     .exclude(emp_id__in=["", "UNKNOWN", "NO_FACE"])
+        #     .order_by("-capture_date_time")
+        # )
+        
         records = (
             RecognizedFace.objects
             .filter(
                 camera_name__in=cameras,
                 capture_date_time__gte=recent_start
             )
-            .exclude(emp_id__in=["", "UNKNOWN", "NO_FACE"])
             .order_by("-capture_date_time")
         )
 
         for r in records:
+
             emp = Employee.objects.filter(emp_id=r.emp_id).first()
-            if not emp or emp.dept not in restricted_depts:
+
+            # ---------- CONFIRMED EMPLOYEE ----------
+            if r.emp_id and emp and emp.dept in restricted_depts:
+
+                send_restricted_zone_alert(
+                    to_email=email,
+                    emp_id=emp.emp_id,
+                    emp_name=emp.emp_name,
+                    emp_dept=emp.dept,
+                    unauthorized_person=None,
+                    place=r.camera_name,
+                    time_str=r.capture_date_time.strftime("%H:%M"),
+                    image_path=r.image_path,
+                    zone_type=zone_type
+                )
                 continue
 
-            last = RESTRICTED_ZONE_LAST_ALERT.get(rule_key)
-            if last and (now-last).total_seconds() < 60:
-             continue
 
+            # ---------- UNAUTHORIZED PERSON ----------
+            if not r.emp_id and r.similarity_id:
 
-            send_restricted_zone_alert(
-                to_email=email,
-                emp_id=emp.emp_id,
-                emp_name=emp.emp_name,
-                emp_dept=emp.dept,
-                place=r.camera_name,
-                time_str=r.capture_date_time.strftime("%H:%M"),
-                image_path=r.image_path,
-                zone_type=zone_type
-            )
-
-
-            RESTRICTED_ZONE_LAST_ALERT[rule_key] = now
-            return
-
+                send_restricted_zone_alert(
+                    to_email=email,
+                    emp_id=None,
+                    emp_name=None,
+                    emp_dept=None,
+                    unauthorized_person=r.similarity_id,
+                    place=r.camera_name,
+                    time_str=r.capture_date_time.strftime("%H:%M"),
+                    image_path=r.image_path,
+                    zone_type=zone_type
+                )
+                continue
 
 
 # -----------------IN/OUT TIME RULE-------------

@@ -115,7 +115,9 @@ def send_restricted_zone_alert(
     place,
     time_str,
     image_path=None,
-    zone_type=None
+    zone_type=None,
+    unauthorized_person=None, #--new
+    
 ):
     subject = "🚨Restricted Zone Violation Alert"
 
@@ -148,11 +150,11 @@ Unauthorized entry detected.
     employee_id=emp_id,
     employee_name=emp_name,
     employee_dept=emp_dept,
+    unauthorized_person=unauthorized_person, #--new
     zone_type=zone_type,
     time=time_str,
     image_path=image_path
 )
-
 
 # ----------- IN / OUT TIME ALERT MAIL -------------
 def send_inout_time_alert(

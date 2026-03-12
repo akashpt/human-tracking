@@ -104,6 +104,7 @@ class EmailSend(models.Model):
     employee_id = models.CharField(max_length=50, null=True, blank=True)
     employee_name = models.CharField(max_length=100, null=True, blank=True)
     employee_dept = models.CharField(max_length=100, null=True, blank=True)
+    unauthorized_person = models.CharField(max_length=50, null=True, blank=True)
     total_emp = models.IntegerField(null=True, blank=True)
     present_emp = models.IntegerField(null=True, blank=True)
     missing_emp = models.TextField(null=True, blank=True)

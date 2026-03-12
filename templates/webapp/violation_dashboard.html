@@ -98,123 +98,164 @@
               <th style="width: 11%">Emp ID</th>
               <th style="width: 17%">Employee Name</th>
               <th style="width: 12%">Department</th>
+              <th style="width: 12%">Unauthorized</th> 
               <th style="width: 14%">Location</th>
               <th style="width: 13%">Date & Time</th>
               <th style="width: 8%; text-align: center">Action</th>
             </tr>
           </thead>
       <tbody id="tbody">
-  {% for r in page_obj %}
-  <tr>
-    <td>
-      {% if r.image_path %}
-        <img src="/media/{{ r.image_path }}" class="ct" alt="Evidence">
-      {% else %}
-        <img src="{% static 'webapp/images/no-image.png' %}" class="ct" alt="No Image">
-      {% endif %}
-    </td>
-
-    <td>
-      {% if "restricted" in r.rule_category|lower %}
-        <span class="tbadge tb-r">{{ r.rule_category }}</span>
-      {% elif "allowed" in r.rule_category|lower %}
-        <span class="tbadge tb-a">{{ r.rule_category }}</span>
-      {% elif "in/out" in r.rule_category|lower or "inout" in r.rule_category|lower %}
-        <span class="tbadge tb-i">{{ r.rule_category }}</span>
-      {% elif "phone" in r.rule_category|lower %}
-        <span class="tbadge tb-p">{{ r.rule_category }}</span>
-      {% elif "safety" in r.rule_category|lower %}
-        <span class="tbadge tb-s">{{ r.rule_category }}</span>
-      {% else %}
-        <span class="tbadge">{{ r.rule_category }}</span>
-      {% endif %}
-    </td>
-
-    <td><span class="cid">{{ r.employee_id }}</span></td>
-    <td><span class="cname">{{ r.employee_name }}</span></td>
-    <td><span class="cdept">{{ r.employee_dept }}</span></td>
-    <td>{{ r.place }}</td>
-    <td><span class="ctime">{{ r.created_at|date:"Y-m-d H:i" }}</span></td>
-
-    <td style="text-align:center">
-      <button class="btn-view" onclick="openModal('modal{{ r.id }}')">
-        <i class="bi bi-eye-fill"></i> View
-      </button>
-    </td>
-  </tr>
-
-  <!-- Modal remains the same -->
-  <div class="overlay" id="modal{{ r.id }}" onclick="ovClick(event, 'modal{{ r.id }}')">
-    <div class="mbox">
-      <div class="mh">
-        <div class="mh-title">
-          <div class="mh-icon"><i class="bi bi-info-circle-fill"></i></div>
-          <div>
-            <div>{{ r.rule_category }}</div>
-            <div class="mh-sub">{{ r.employee_name }} · {{ r.created_at|date:"Y-m-d H:i" }}</div>
-          </div>
-        </div>
-        <button class="mh-close" onclick="closeModal('modal{{ r.id }}')">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
-
-      <div class="mbody">
-        <div class="mb-left">
+      {% for r in page_obj %}
+      <tr>
+        <td>
           {% if r.image_path %}
-            <img src="/media/{{ r.image_path }}" alt="Evidence">
+            <img src="/media/{{ r.image_path }}" class="ct" alt="Evidence">
           {% else %}
-            <img src="{% static 'webapp/images/no-image.png' %}" alt="No Image">
+            <img src="{% static 'webapp/images/no-image.png' %}" class="ct" alt="No Image">
           {% endif %}
-          <div class="mb-img-lbl"><i class="bi bi-camera-fill"></i> Evidence Photo</div>
+        </td>
+
+        <td>
           {% if "restricted" in r.rule_category|lower %}
-            <span class="tbadge tb-r" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+            <span class="tbadge tb-r">{{ r.rule_category }}</span>
           {% elif "allowed" in r.rule_category|lower %}
-            <span class="tbadge tb-a" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+            <span class="tbadge tb-a">{{ r.rule_category }}</span>
           {% elif "in/out" in r.rule_category|lower or "inout" in r.rule_category|lower %}
-            <span class="tbadge tb-i" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+            <span class="tbadge tb-i">{{ r.rule_category }}</span>
           {% elif "phone" in r.rule_category|lower %}
-            <span class="tbadge tb-p" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+            <span class="tbadge tb-p">{{ r.rule_category }}</span>
           {% elif "safety" in r.rule_category|lower %}
-            <span class="tbadge tb-s" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+            <span class="tbadge tb-s">{{ r.rule_category }}</span>
           {% else %}
-            <span class="tbadge" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+            <span class="tbadge">{{ r.rule_category }}</span>
           {% endif %}
-        </div>
+        </td>
 
-        <div class="mb-right">
-          <!-- Employee & Incident details same as before -->
-          <div>
-            <div class="ms-title"><i class="bi bi-person-badge"></i> Employee Information</div>
-            <div class="mr"><div class="mk">Employee ID</div><div class="mv" style="color:var(--wine);font-weight:600">{{ r.employee_id }}</div></div>
-            <div class="mr"><div class="mk">Full Name</div><div class="mv">{{ r.employee_name }}</div></div>
-            <div class="mr"><div class="mk">Department</div><div class="mv">{{ r.employee_dept }}</div></div>
+        {% comment %} <td><span class="cid">{{ r.employee_id }}</span></td>
+        <td><span class="cname">{{ r.employee_name }}</span></td>
+        <td><span class="cdept">{{ r.employee_dept }}</span></td> {% endcomment %}
+
+        <td>
+          <span class="cid">
+            {% if r.employee_id %}
+              {{ r.employee_id }}
+            {% else %}
+              -
+            {% endif %}
+          </span>
+        </td>
+
+        <td>
+          <span class="cname">
+            {% if r.employee_name %}
+              {{ r.employee_name }}
+            {% else %}
+              -
+            {% endif %}
+          </span>
+        </td>
+
+        <td>
+          <span class="cdept">
+            {% if r.employee_dept %}
+              {{ r.employee_dept }}
+            {% else %}
+              -
+            {% endif %}
+          </span>
+        </td>
+
+        <td>
+          {% if r.unauthorized_person %}
+            <span >UNKNOWN</span>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        
+        <td>{{ r.place }}</td>
+        <td><span class="ctime">{{ r.created_at|date:"Y-m-d H:i" }}</span></td>
+
+        <td style="text-align:center">
+          <button class="btn-view" onclick="openModal('modal{{ r.id }}')">
+            <i class="bi bi-eye-fill"></i> View
+          </button>
+        </td>
+      </tr>
+
+      <!-- Modal remains the same -->
+      <div class="overlay" id="modal{{ r.id }}" onclick="ovClick(event, 'modal{{ r.id }}')">
+        <div class="mbox">
+          <div class="mh">
+            <div class="mh-title">
+              <div class="mh-icon"><i class="bi bi-info-circle-fill"></i></div>
+              <div>
+                <div>{{ r.rule_category }}</div>
+                <div class="mh-sub">{{ r.employee_name }} · {{ r.created_at|date:"Y-m-d H:i" }}</div>
+              </div>
+            </div>
+            <button class="mh-close" onclick="closeModal('modal{{ r.id }}')">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
-          <div>
-            <div class="ms-title"><i class="bi bi-geo-alt"></i> Incident Details</div>
-            <div class="mr"><div class="mk">Location</div><div class="mv">{{ r.place }}</div></div>
-            <div class="mr"><div class="mk">Date & Time</div><div class="mv">{{ r.created_at|date:"Y-m-d H:i" }}</div></div>
-            {% if r.zone_type %}<div class="mr"><div class="mk">Zone Type</div><div class="mv">{{ r.zone_type }}</div></div>{% endif %}
-            {% if r.allowed_department %}<div class="mr"><div class="mk">Allowed Dept</div><div class="mv">{{ r.allowed_department }}</div></div>{% endif %}
-            {% if r.break_type %}<div class="mr"><div class="mk">Break Type</div><div class="mv">{{ r.break_type }}</div></div>{% endif %}
+
+          <div class="mbody">
+            <div class="mb-left">
+              {% if r.image_path %}
+                <img src="/media/{{ r.image_path }}" alt="Evidence">
+              {% else %}
+                <img src="{% static 'webapp/images/no-image.png' %}" alt="No Image">
+              {% endif %}
+              <div class="mb-img-lbl"><i class="bi bi-camera-fill"></i> Evidence Photo</div>
+              {% if "restricted" in r.rule_category|lower %}
+                <span class="tbadge tb-r" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+              {% elif "allowed" in r.rule_category|lower %}
+                <span class="tbadge tb-a" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+              {% elif "in/out" in r.rule_category|lower or "inout" in r.rule_category|lower %}
+                <span class="tbadge tb-i" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+              {% elif "phone" in r.rule_category|lower %}
+                <span class="tbadge tb-p" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+              {% elif "safety" in r.rule_category|lower %}
+                <span class="tbadge tb-s" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+              {% else %}
+                <span class="tbadge" style="width:100%;justify-content:center;padding:8px">{{ r.rule_category }}</span>
+              {% endif %}
+            </div>
+
+            <div class="mb-right">
+              <!-- Employee & Incident details same as before -->
+              <div>
+                <div class="ms-title"><i class="bi bi-person-badge"></i> Employee Information</div>
+                <div class="mr"><div class="mk">Employee ID</div><div class="mv" style="color:var(--wine);font-weight:600">{{ r.employee_id }}</div></div>
+                <div class="mr"><div class="mk">Full Name</div><div class="mv">{{ r.employee_name }}</div></div>
+                <div class="mr"><div class="mk">Department</div><div class="mv">{{ r.employee_dept }}</div></div>
+                <div class="mr"><div class="mk">Unauthorized</div><div class="mv">{{ r.unauthorized_person }}</div></div>
+              </div>
+              <div>
+                <div class="ms-title"><i class="bi bi-geo-alt"></i> Incident Details</div>
+                <div class="mr"><div class="mk">Location</div><div class="mv">{{ r.place }}</div></div>
+                <div class="mr"><div class="mk">Date & Time</div><div class="mv">{{ r.created_at|date:"Y-m-d H:i" }}</div></div>
+                {% if r.zone_type %}<div class="mr"><div class="mk">Zone Type</div><div class="mv">{{ r.zone_type }}</div></div>{% endif %}
+                {% if r.allowed_department %}<div class="mr"><div class="mk">Allowed Dept</div><div class="mv">{{ r.allowed_department }}</div></div>{% endif %}
+                {% if r.break_type %}<div class="mr"><div class="mk">Break Type</div><div class="mv">{{ r.break_type }}</div></div>{% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="mfoot">
+            <button class="btn-cm" onclick="closeModal('modal{{ r.id }}')">Close</button>
           </div>
         </div>
       </div>
-
-      <div class="mfoot">
-        <button class="btn-cm" onclick="closeModal('modal{{ r.id }}')">Close</button>
-      </div>
-    </div>
-  </div>
-  {% empty %}
-  <tr>
-    <td colspan="8" class="empty-row">
-      <div class="eicon"><i class="bi bi-inbox-fill"></i></div>
-      <div class="emsg">No records found</div>
-    </td>
-  </tr>
-  {% endfor %}
-</tbody>
+      {% empty %}
+      <tr>
+        <td colspan="8" class="empty-row">
+          <div class="eicon"><i class="bi bi-inbox-fill"></i></div>
+          <div class="emsg">No records found</div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
         </table>
       </div>
       <div class="pag">
