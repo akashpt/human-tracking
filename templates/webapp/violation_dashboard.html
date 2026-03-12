@@ -84,30 +84,42 @@
     <div class="tc">
       <div class="tc-head">
         <div class="tc-title"><i class="bi bi-table"></i> Violation Records</div>
+        
+        <!-- Toggle (added here - everything else untouched) -->
+        <div class="toggle-container" style="display: flex; align-items: center; gap: 12px;">
+          <label for="privacyMode"  class="show_unauthorized_toggle">
+            Unauthorized Only
+          </label>
+          <label class="switch">
+            <input type="checkbox" id="privacyMode">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
         <div class="export_record_flex">
           <span class="rec-pill">{{ page_obj.paginator.count }} records</span>
           <a href="{% url 'export_violation_csv' %}?{{ request.GET.urlencode }}" class="btn-ghost"><i class="bi bi-download"></i> Export CSV</a>
         </div>
       </div>
       <div style="overflow-x: auto">
-        <table>
+        <table id="violationTable">
           <thead>
             <tr>
-              <th style="width: 72px">Photo</th>
-              <th style="width: 15%">Rule Type</th>
-              <th style="width: 11%">Emp ID</th>
-              <th style="width: 17%">Employee Name</th>
-              <th style="width: 12%">Department</th>
-              <th style="width: 12%">Unauthorized</th> 
-              <th style="width: 14%">Location</th>
-              <th style="width: 13%">Date & Time</th>
-              <th style="width: 8%; text-align: center">Action</th>
+              <th style="width: auto; text-align: center">Photo</th>
+              <th style="width: auto; text-align: center">Rule Type</th>
+              <th style="width: auto; text-align: center" class="emp-detail">Emp ID</th>
+              <th style="width: auto; text-align: center" class="emp-detail">Employee Name</th>
+              <th style="width: auto; text-align: center" class="emp-detail">Department</th>
+              <th style="width: auto; text-align: center" class="unauth-col">Unauthorized</th> 
+              <th style="width: auto; text-align: center">Location</th>
+              <th style="width: auto; text-align: center">Date & Time</th>
+              <th style="width: auto; text-align: center">Action</th>
             </tr>
           </thead>
       <tbody id="tbody">
       {% for r in page_obj %}
       <tr>
-        <td>
+        <td class="text-center image_td">
           {% if r.image_path %}
             <img src="/media/{{ r.image_path }}" class="ct" alt="Evidence">
           {% else %}
@@ -115,7 +127,7 @@
           {% endif %}
         </td>
 
-        <td>
+        <td class="text-center">
           {% if "restricted" in r.rule_category|lower %}
             <span class="tbadge tb-r">{{ r.rule_category }}</span>
           {% elif "allowed" in r.rule_category|lower %}
@@ -131,11 +143,7 @@
           {% endif %}
         </td>
 
-        {% comment %} <td><span class="cid">{{ r.employee_id }}</span></td>
-        <td><span class="cname">{{ r.employee_name }}</span></td>
-        <td><span class="cdept">{{ r.employee_dept }}</span></td> {% endcomment %}
-
-        <td>
+        <td class="emp-detail text-center">
           <span class="cid">
             {% if r.employee_id %}
               {{ r.employee_id }}
@@ -145,7 +153,7 @@
           </span>
         </td>
 
-        <td>
+        <td class="emp-detail text-center" >
           <span class="cname">
             {% if r.employee_name %}
               {{ r.employee_name }}
@@ -155,7 +163,7 @@
           </span>
         </td>
 
-        <td>
+        <td class="emp-detail text-center">
           <span class="cdept">
             {% if r.employee_dept %}
               {{ r.employee_dept }}
@@ -165,18 +173,18 @@
           </span>
         </td>
 
-        <td>
+        <td class="unauth-col text-center">
           {% if r.unauthorized_person %}
-            <span >UNKNOWN</span>
+            <span>UNKNOWN</span>
           {% else %}
             -
           {% endif %}
         </td>
         
-        <td>{{ r.place }}</td>
+        <td class="text-center">{{ r.place }}</td>
         <td><span class="ctime">{{ r.created_at|date:"Y-m-d H:i" }}</span></td>
 
-        <td style="text-align:center">
+        <td class="text-center">
           <button class="btn-view" onclick="openModal('modal{{ r.id }}')">
             <i class="bi bi-eye-fill"></i> View
           </button>
@@ -305,6 +313,68 @@
   </div>
 </section>
 
+<!-- Toggle Switch Styles + Two-Way Privacy Filtering -->
+<style>
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+  }
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px; bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider {
+    background-color: #722f37;
+  }
+  input:checked + .slider:before {
+    transform: translateX(24px);
+  }
+
+  /* ==================== COLUMN VISIBILITY ==================== */
+  /* Default (toggle OFF): hide Unauthorized column */
+  #violationTable th.unauth-col,
+  #violationTable td.unauth-col {
+    display: none !important;
+  }
+
+  /* When toggle is ON: hide Employee columns + show Unauthorized column */
+  #violationTable.privacy-unauth-only th.emp-detail,
+  #violationTable.privacy-unauth-only td.emp-detail {
+    display: none !important;
+  }
+
+  #violationTable.privacy-unauth-only th.unauth-col,
+  #violationTable.privacy-unauth-only td.unauth-col {
+    display: table-cell !important;
+  }
+  .image_td{
+        display: flex;
+    justify-content: center;
+  }
+  /* ================================================================ */
+</style>
+
 <script>
   function openModal(id) {
     document.getElementById(id).classList.add("open");
@@ -356,4 +426,59 @@ function changePageSize(size) {
     window.location.href = url.toString();
 }
 </script>
+
+<script>
+// ====================== PRIVACY MODE (Two-Way Filtering) ======================
+// ON  → Show ONLY unauthorized rows (UNKNOWN) + hide employee columns
+// OFF → Hide unauthorized rows + show employee columns
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('privacyMode');
+  const table = document.getElementById('violationTable');
+
+  function applyPrivacy() {
+    const isPrivacyOn = table.classList.contains('privacy-unauth-only');
+
+    const rows = table.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+      const unauthTd = row.querySelector('td.unauth-col');
+      if (!unauthTd) return;   // skip empty-row or any row without the column
+
+      const isUnauthorizedRow = unauthTd.textContent.trim() === 'UNKNOWN';
+
+      if (isPrivacyOn) {
+        row.style.display = isUnauthorizedRow ? '' : 'none';
+      } else {
+        row.style.display = isUnauthorizedRow ? 'none' : '';
+      }
+    });
+  }
+
+  // Load saved preference
+  const saved = localStorage.getItem('privacyModeUnauthOnly');
+  if (saved === 'true') {
+    toggle.checked = true;
+    table.classList.add('privacy-unauth-only');
+  } else {
+    table.classList.remove('privacy-unauth-only');
+  }
+
+  // Apply on load
+  applyPrivacy();
+
+  // Toggle handler
+  toggle.addEventListener('change', () => {
+    if (toggle.checked) {
+      table.classList.add('privacy-unauth-only');
+      localStorage.setItem('privacyModeUnauthOnly', 'true');
+    } else {
+      table.classList.remove('privacy-unauth-only');
+      localStorage.setItem('privacyModeUnauthOnly', 'false');
+    }
+    applyPrivacy();
+  });
+});
+// =========================================================================
+</script>
+
 {% endblock %}

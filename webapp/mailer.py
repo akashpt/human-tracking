@@ -65,6 +65,7 @@ def send_allowed_place_alert(
     time_str,
     image_path=None,
     zone_type=None,
+    unauthorized_person=None,
 ):
     subject = "🚨Allowed Place Violation Alert"
 
@@ -100,6 +101,7 @@ Unauthorized department employee entered restricted place.
         employee_id=emp_id,
         employee_name=emp_name,
         employee_dept=emp_dept,
+        unauthorized_person=unauthorized_person,
         allowed_department=allowed_dept,
         time=time_str,
         image_path=image_path,

@@ -557,28 +557,36 @@
   }
 
   .data_table_section .tb-r {
-      background: #fee2e2;
+      /* background: #fee2e2; */
       color: #991b1b;
   }
 
   .data_table_section .tb-a {
-      background: #dcfce7;
+      /* background: #dcfce7; */
       color: #166534;
   }
 
   .data_table_section .tb-i {
-      background: #fef9c3;
+      /* background: #fef9c3; */
       color: #854d0e;
   }
 
   .data_table_section .tb-p {
-      background: #dbeafe;
+      /* background: #dbeafe; */
       color: #1e40af;
   }
 
   .data_table_section .tb-s {
-      background: #f3e8ff;
+      /* background: #f3e8ff; */
       color: #6b21a8;
+  }
+
+  .show_unauthorized_toggle {
+      font-size: 0.92rem;
+      color: #555;
+      font-weight: 500;
+      user-select: none;
+      white-space: nowrap;
   }
 
   .data_table_section .cid {
@@ -594,8 +602,8 @@
   }
 
   .data_table_section .cdept {
-      color: var(--muted);
-      font-size: 0.82rem;
+      color: var(--ink);
+      font-weight: 500;
   }
 
   .data_table_section .ctime {

@@ -222,7 +222,7 @@ def execute_allowed_place_rules():
         camera_names = rule["place"]
         head_email = rule["head_email"]
 
-        recent_start = now - timedelta(minutes=2)
+        recent_start = now - timedelta(minutes=1)
 
         records = (
             RecognizedFace.objects
@@ -230,7 +230,6 @@ def execute_allowed_place_rules():
                 camera_name__in=camera_names,
                 capture_date_time__gte=recent_start
             )
-            .exclude(emp_id__in=["", "UNKNOWN", "NO_FACE"])
             .order_by("-capture_date_time")
         )
 
@@ -238,30 +237,48 @@ def execute_allowed_place_rules():
             continue
 
         for rec in records:
+
             emp = Employee.objects.filter(emp_id=rec.emp_id).first()
-            if not emp:
-                continue
 
-            if emp.dept not in allowed_departments:
+            # ---------------- EMPLOYEE CASE ----------------
+            if rec.emp_id and emp:
 
-                last_sent = ALLOWED_PLACE_LAST_ALERT.get(rule_key)
-                if last_sent and (now - last_sent).total_seconds() < 60:
+                if emp.dept not in allowed_departments:
+
+                    send_allowed_place_alert(
+                        to_email=head_email,
+                        emp_id=emp.emp_id,
+                        emp_name=emp.emp_name,
+                        emp_dept=emp.dept,
+                        allowed_dept=allowed_departments,
+                        place=rec.camera_name,
+                        time_str=rec.capture_date_time.strftime("%H:%M:%S"),
+                        image_path=rec.image_path,
+                        zone_type=zone_type
+                    )
+
+                    ALLOWED_PLACE_LAST_ALERT[rule_key] = now
                     continue
+
+
+            # ---------------- UNKNOWN PERSON ----------------
+            if not rec.emp_id and rec.similarity_id:
 
                 send_allowed_place_alert(
                     to_email=head_email,
-                    emp_id=emp.emp_id,
-                    emp_name=emp.emp_name,
-                    emp_dept=emp.dept,
+                    emp_id=None,
+                    emp_name=None,
+                    emp_dept=None,
                     allowed_dept=allowed_departments,
                     place=rec.camera_name,
-                    time_str=rec.capture_date_time.strftime("%H:%M"),
+                    time_str=rec.capture_date_time.strftime("%H:%M:%S"),
                     image_path=rec.image_path,
-                    zone_type=zone_type
+                    zone_type=zone_type,
+                    unauthorized_person=rec.similarity_id
                 )
 
                 ALLOWED_PLACE_LAST_ALERT[rule_key] = now
-                break   # one mail per cycle
+                continue
 
 # -----------------RESTRICTED ZONE RULE-------------
 from webapp.mailer import send_restricted_zone_alert
